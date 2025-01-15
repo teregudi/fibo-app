@@ -13,3 +13,4 @@ npm install --global smee-client
 Ezután add ki a parancsot, ami összeköti a smee url-t a local Jenkins-szel (cseréld ki a szükséges adatokat):
 smee -u https://smee.io/iNkPOCynUj7fZRW -t http://localhost:8080/github-webhook/
 (Ennek folyamatosan futnia kell, amíg használni akarod a Jenkinst)
+
