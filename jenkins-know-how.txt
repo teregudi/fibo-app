@@ -1,0 +1,15 @@
+A Jenkins ebben a projectben egy külön szolgáltatásként van definiálva a docker-compose.yml fájlban.
+Ha csak a Jenkinst akarod futtatni, akkor add ki ezt a parancsot:
+docker-compose up jenkins
+Ezután a Jenkinst itt éred el:
+http://localhost:8080
+Bármit módosítasz, azt lementi a jenkins_home volume-ba, ezért a container újraindítása után is meglesz minden.
+jenkins admin pass (ezt a docker-compose up jenkins parancs lefutásakor írja ki):
+76454492d5ae4ba993e83d4ebbf3a79c
+
+Ahhoz, hogy a Jenkins értesüljön róla, hogy pusholtál valamit GitHubra, létre kell hozni egy webhookot GitHubon. A webhooknak pedig kell egy url, és itt kell egy közvetítő, mert a Jenkins localban fut, azt nem adhatod meg. Menj fel a smee.io-ra, ami kreál neked egy static url-t (ezt kell megadni a webhookban).
+Installáld a smee clientet localban:
+npm install --global smee-client
+Ezután add ki a parancsot, ami összeköti a smee url-t a local Jenkins-szel (cseréld ki a szükséges adatokat):
+smee -u https://smee.io/iNkPOCynUj7fZRW -t http://localhost:8080/github-webhook/
+(Ennek folyamatosan futnia kell, amíg használni akarod a Jenkinst)
