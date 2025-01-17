@@ -1,5 +1,8 @@
 A Jenkins ebben a projectben egy külön szolgáltatásként van definiálva a docker-compose.yml fájlban.
-Ha csak a Jenkinst akarod futtatni, akkor add ki ezt a parancsot:
+mivel docker parancsokat akarsz futtatni a Jenkinsben, ezért a containerben már telepítve kell lennie a dockernek
+ehhez egy custom buildet kell készítened a Dockerfile.jenkins alapján ezzel a paranccsal:
+docker build -t custom-jenkins -f Dockerfile.jenkins .
+Ha csak a Jenkinst akarod futtatni (általában igen), akkor add ki ezt a parancsot:
 docker-compose up jenkins
 Ezután a Jenkinst itt éred el:
 http://localhost:8080
@@ -7,14 +10,46 @@ Bármit módosítasz, azt lementi a jenkins_home volume-ba, ezért a container �
 jenkins admin pass (ezt a docker-compose up jenkins parancs lefutásakor írja ki):
 76454492d5ae4ba993e83d4ebbf3a79c
 
-Ahhoz, hogy a Jenkins értesüljön róla, hogy pusholtál valamit GitHubra, létre kell hozni egy webhookot GitHubon. A webhooknak pedig kell egy url, és itt kell egy közvetítő, mert a Jenkins localban fut, azt nem adhatod meg. Menj fel a smee.io-ra, ami kreál neked egy static url-t (ezt kell megadni a webhookban).
+Ahhoz, hogy a Jenkins értesüljön róla, hogy pusholtál valamit GitHubra, létre kell hozni egy webhookot GitHubon.
+A webhooknak pedig kell egy url, és itt kell egy közvetítő, mert a Jenkins localban fut, azt nem adhatod meg.
+Menj fel a smee.io-ra, ami kreál neked egy static url-t (ezt kell megadni a webhookban).
 Installáld a smee clientet localban:
 npm install --global smee-client
-Ezután add ki a parancsot, ami összeköti a smee url-t a local Jenkins-szel (cseréld ki a szükséges adatokat):
+Ezután add ki a parancsot, ami összeköti a smee url-t a local Jenkins-szel (cseréld ki a smee-ben az id-t):
 smee -u https://smee.io/iNkPOCynUj7fZRW -t http://localhost:8080/github-webhook/
 (Ennek folyamatosan futnia kell, amíg használni akarod a Jenkinst)
 
-smee -u https://smee.io/iNkPOCynUj7fZRW -t http://localhost:8080/job/FiboAppPipeline/build?token=auth-token
+A jenkinsben először is telepítened kell a következő plugineket (Dashboard -> Manage Jenkins -> Plugins):
+Docker Pipeline, Github plugin 
+(ezeket valszeg default telepíti de azért csekkold: git plugin, git client plugin, github api plugin, github integration plugin, github branch source plugin)
 
-fusson localban a smee meg a jenkins, és böngészőben a smee url, próbáld meg összelőni
-teszt2
+Jöhet a Pipeline kreálás: Dashboard -> New Item -> Pipeline
+Configuration:
+- ez legyen kipipálva: GitHub hook trigger for GITScm polling
+Pipeline
+    Definition: Pipeline script from SCM
+    SCM: Git
+    Repository URL: a repo SSH linkje (pl: git@github.com:teregudi/fibo-app.git)
+    (itt lehet hogy megjelenik egy piros hibaüzenet, de a credentials majd megoldja)
+    Credentials -> Add -> Jenkins:
+        Domain: Global credentials
+        Kind: SSH Username with private key
+        Scope: global
+        ID: <tökmindegy>
+        Username: teregudi
+        Private Key -> Enter directly -> Add:
+            másold be a private ssh-t a keypassból (a ---BEGIN és ---END sorok is kellenek)
+    Script path: Jenkinsfile
+A Jenkinsfile legyen a repo gyökerében. A Jenkinsfile-ban is használhatsz credentialst, pl. hogy elérd a dockerhubot.
+Ehhez a Jenkinsben hozz létre új Global credentials (Manage Jenkins -> Security -> Credentials -> Username with password)
+A fájlban az ID alapján tudsz rá hivatkozni, pl. docker.withRegistry('https://index.docker.io/v1/', 'dockerhubid')
+
+Ha a git hostra panaszkodik a logokban, akkor azt itt tudod kilőni:
+Manage Jenkins -> Security -> Security -> Git Host Key Verification Configuration 
+Host Key Verification Strategy: No Verification
+
+Ha több logot akarsz látni:
+Manage Jenkins -> System Log -> Add recorder -> Name: akármi
+Logger: hudson.plugins.git.GitStatus, Log Level: All
+Logger: com.cloudbees.jenkins.GitHubWebHook, Log Level: All
+Logger: org.jenkinsci.plugins.github, Log Level: All
