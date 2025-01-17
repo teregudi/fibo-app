@@ -17,3 +17,4 @@ smee -u https://smee.io/iNkPOCynUj7fZRW -t http://localhost:8080/github-webhook/
 smee -u https://smee.io/iNkPOCynUj7fZRW -t http://localhost:8080/job/FiboAppPipeline/build?token=auth-token
 
 fusson localban a smee meg a jenkins, és böngészőben a smee url, próbáld meg összelőni
+teszt
