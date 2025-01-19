@@ -64,4 +64,3 @@ aztán jöhet a parancs
 db instance: multi-docker-postgres
 db user: postgres
 db pass: postgres_password
-
