@@ -42,13 +42,13 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    # Install AWS CLI
-                    pip install --upgrade --user awscli
-
                     # Configure AWS CLI
                     aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
                     aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
                     aws configure set default.region eu-north-1
+
+                    # Upload Docker images to S3
+                    aws s3 cp ./Dockerrun.aws.json s3://elasticbeanstalk-eu-north-1-904233114398/fibo-app/Dockerrun.aws.json
 
                     # Initialize Elastic Beanstalk application
                     eb init -p docker fibo-app --region eu-north-1
@@ -57,9 +57,6 @@ pipeline {
                     if ! eb status faszom-env; then
                         eb create faszom-env
                     fi
-
-                    # Upload Docker images to S3
-                    aws s3 cp ./Dockerrun.aws.json s3://elasticbeanstalk-eu-north-1-904233114398/fibo-app/Dockerrun.aws.json
 
                     # Deploy to Elastic Beanstalk
                     eb deploy faszom-env
