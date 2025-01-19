@@ -17,8 +17,16 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 RUN unzip awscliv2.zip
 RUN ./aws/install
 
+# Create a virtual environment and install EB CLI
+RUN python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip && \
+    /opt/venv/bin/pip install --upgrade awsebcli
+
 # Add Jenkins user to the Docker group if it doesn't already exist
 RUN if ! getent group docker; then groupadd docker; fi && usermod -aG docker jenkins
 
 # Switch back to Jenkins user
 USER jenkins
+
+# Add the virtual environment to the PATH
+ENV PATH="/opt/venv/bin:$PATH"
