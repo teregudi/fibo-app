@@ -61,3 +61,7 @@ mert ez adja meg véglegesen a jogosultságot a jenkinsnek a docker használatá
 Utólag is ki lehet adni ezt a parancsot, csak akkor a Jenkins futtatása után mindig azzal kell kezdeni, hogy rootként meghívod a container terminálját:
 docker exec -it --user root a417f1f1d60d1a63509ada26f612ff6b5ccf7e7462a2a244bf26186e0aa8a5fe /bin/bash
 aztán jöhet a parancs
+db instance: multi-docker-postgres
+db user: postgres
+db pass: postgres_password
+
