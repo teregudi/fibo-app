@@ -51,9 +51,10 @@ pipeline {
                     aws configure list
 
                     # Initialize Elastic Beanstalk application
-                    eb init -p docker fibo-app --region eu-north-1 --platform "Docker running on 64bit Amazon Linux 2"
+                    eb init -p docker fibo-app --region eu-north-1
 
-                    
+                    # Upload Docker images to S3
+                    aws s3 cp ./Dockerrun.aws.json s3://elasticbeanstalk-eu-north-1-904233114398/fibo-app/Dockerrun.aws.json
 
                     # Create Elastic Beanstalk environment if it doesn't exist
                     if ! eb status faszom-env; then
