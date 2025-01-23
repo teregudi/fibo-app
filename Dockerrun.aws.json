@@ -18,7 +18,12 @@
             "image": "teregudi/multi-server",
             "hostname": "api",
             "essential": false,
-            "memory": 128
+            "memory": 128,
+            "ports": [
+                {
+                    "containerPort": 5000
+                }
+            ]
         },
         {
             "name": "worker",
