@@ -6,7 +6,12 @@
             "image": "teregudi/multi-client",
             "hostname": "client",
             "essential": false,
-            "memory": 128
+            "memory": 128,
+            "ports": [
+                {
+                    "containerPort": 3000
+                }
+            ]
         },
         {
             "name": "server",
