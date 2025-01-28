@@ -1,62 +1,37 @@
 version: '3'
 services:
-  postgres:
-    image: 'postgres:latest'
-    environment:
-      - POSTGRES_PASSWORD=postgres_password
-  redis:
-    image: 'redis:latest'
-  nginx:
-    depends_on:
-      - api
-      - client
-    restart: always
-    build:
-      dockerfile: Dockerfile.dev
-      context: ./nginx
-    ports:
-      - '3050:80'
-  api:
-    build:
-      dockerfile: Dockerfile.dev
-      context: ./server
-    volumes:
-      - /app/node_modules
-      - ./server:/app
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - PGUSER=postgres
-      - PGHOST=postgres
-      - PGDATABASE=postgres
-      - PGPASSWORD=postgres_password
-      - PGPORT=5432
   client:
-    stdin_open: true
     build:
-      dockerfile: Dockerfile.dev
       context: ./client
-    volumes:
-      - /app/node_modules
-      - ./client:/app
+      dockerfile: Dockerfile
+    image: teregudi/multi-client
+    ports:
+      - "3000:3000"
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: teregudi/multi-server
+    ports:
+      - "5000:5000"
   worker:
     build:
-      dockerfile: Dockerfile.dev
       context: ./worker
-    volumes:
-      - /app/node_modules
-      - ./worker:/app
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-  jenkins:
-    image: custom-jenkins
+      dockerfile: Dockerfile
+    image: teregudi/multi-worker
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: teregudi/multi-nginx
     ports:
-      - "8080:8080"
-      - "50000:50000"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-
-volumes:
-  jenkins_home:
+      - "80:80"
+    depends_on:
+      - client
+      - server
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: postgres_password
+  redis:
+    image: redis:latest
